@@ -6,110 +6,156 @@
         </div>
         <div class="panel-body">
             <div class="pull-right">
-                <button class="btn btn-success">保存</button>&nbsp;&nbsp;<button class="btn btn-primary">添加</button>
-            </div>
+                <a href="">
+                    <button class="btn btn-success">保存</button>
+                </a>&nbsp;<a href="">&nbsp;<button class="btn btn-primary">添加</button>
+            </a></div>
             <div class="ss"></div>
-            <div class="s">
-                <p class=" s11">问题1:
-                    <button class="glyphicon glyphicon-remove pull-right"></button>
-                </p>
-                <form class="form-horizontal">
 
-                    <div class="form-group">
-                        <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
-                        <div class="col-sm-10">
+            <div class="jumbotron s55">
+                <div class="s ">
+                    <p class=" s11">问题1:
+                        <a href="/">
+                            <button class="glyphicon glyphicon-remove pull-right"></button>
+                        </a>
+                    </p>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
+                            <div class="col-sm-10">
                             <textarea class="form-control" rows="3" id="inputEmail3"
                                       placeholder="你对教室网络打分情况"></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="inputPassword3" class="col-sm-2 control-label">类型</label>
-                        <div class="col-sm-10">
-                            <select class="form-control" id="inputPassword3">
-                                <option value="1">打分(1-10分)</option>
-                                <option value="2">单选</option>
-                                <option value="3">评价</option>
+                        <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" id="inputPassword3">
+                                    <option value="1">打分(1-10分)</option>
+                                    <option value="2">单选</option>
+                                    <option value="3">评价</option>
 
-                            </select>
+                                </select>
 
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-            <div class="s">
-                <p class=" s11">问题2:
-                    <button class="glyphicon glyphicon-remove pull-right"></button>
-                </p>
-                <form class="form-horizontal">
-                    <div class="form-group">
-                        <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" rows="3" id="inputEmail3"
-                                      placeholder="我们的老师帅不帅"></textarea>
+            <div class="jumbotron">
+                <div class="s">
+                    <p class=" s11">问题2:
+                        <a href="">
+                            <button class="glyphicon glyphicon-remove pull-right"></button>
+                        </a>
+                    </p>
+
+                    <form class="form-horizontal ">
+
+                        <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" id="inputEmail3"
+                                          placeholder="老师长的帅吗"></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="inputPassword3" class="col-sm-2 control-label">类型</label>
-                        <div class="col-md-10">
-                            <select class="form-control" id="inputPassword3">
-                                <option value="1">打分(1-10分)</option>
-                                <option value="2">单选</option>
-                                <option value="3">评价</option>
+                        <div class="form-group">
 
-                            </select>
+                            <label for="inputPassword3" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="content_type">
+                                    <option value="1">打分(1-10分)</option>
+                                    <option value="2" selected>单选</option>
+                                    <option value="3" >评价</option>
+                                </select>
 
-                            <form class="form-inline">
-                                <div class="form-group">
-                                    <label for="exampleInputName2">Name</label>
-                                    <input type="text" class="form-control" id="exampleInputName2"
-                                           placeholder="Jane Doe">
-                                </div>
-                                <div class="form-group">
-                                    <label for="exampleInputEmail2">Email</label>
-                                    <input type="email" class="form-control" id="exampleInputEmail2"
-                                           placeholder="jane.doe@example.com">
-                                </div>
-                            </form>
-
+                            </div>
+                            <div class="add_item1"></div>
 
                         </div>
+                        <div class="form-group" id="add_items">
 
-                    </div>
+                            <label for="content" class="col-sm-2 control-label">内容</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="content" value="很帅">
+                            </div>
+                            <label for="score" class="col-sm-2 control-label">分值</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="score" value="8分">
+                            </div>
+                        </div>
 
-                </form>
 
-
+                    </form>
+                </div>
             </div>
-            <div class="s">
-                <p class=" s11">问题3:
-                    <button class="glyphicon glyphicon-remove pull-right"></button>
-                </p>
-                <form class="form-horizontal">
 
-                    <div class="form-group">
-                        <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" rows="3" id="inputEmail3" placeholder="对我们的建议"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="content_type" class="col-sm-2 control-label">类型</label>
-                        <div class="col-sm-10">
-                            <select class="form-control" id="content_type">
-                                <option value="1">打分(1-10分)</option>
-                                <option value="2">单选</option>
-                                <option value="3">评价</option>
-                            </select>
+            <div class="jumbotron">
+                <div class="s">
+                    <p class=" s11">问题3:
+                        <a href="">
+                            <button class="glyphicon glyphicon-remove pull-right"></button>
+                        </a>
+                    </p>
+                    <form class="form-horizontal">
 
+                        <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" id="inputEmail3"
+                                          placeholder="对我们的建议"></textarea>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                        <div class="form-group">
+                            <label for="content_type" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" id="content_type">
+                                    <option value="1">打分(1-10分)</option>
+                                    <option value="2">单选</option>
+                                    <option value="3" selected>评价</option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
             </div>
 
 
         </div>
     </div>
 {% endblock content %}
+<script>
+     var data={"打分(1-10分)":[],"单选":[],"评价":[]};
+    $("#content_type").onchange(function () {
+        console.log(this.value)
+
+      alert(123)
+      var ss=this.value;
+      if ss=="单选"：
+        s='<a  class="glyphicon glyphicon-plus addoption" id="add_item">添加选项</a>'
+        $("#add_item1").append(s)
+
+
+
+
+
+
+
+    })
+{#$("#add_item").click(function () {#}
+{#    alert(123)#}
+{#    console.log(123)#}
+{#    var html=""#}
+{#    s='<label for="content" class="col-sm-2 control-label">内容</label><div class=\"col-sm-3\"> <input type=\"text\" class=\"form-control\" id=\"content\" value=\"很帅\"> </div> <label for=\"score\" class=\"col-sm-2 control-label\">分值</label> <div class=\"col-sm-3\"> <input type=\"text\" class=\"form-control\" id=\"score\" value=\"8分\"></div>,#}
+{#    html=s#}
+{#    $("#add_items").append(html)#}
+{##}
+{#})#}
+
+
+</script>
 
 
 

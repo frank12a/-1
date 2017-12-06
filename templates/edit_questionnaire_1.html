@@ -1,0 +1,62 @@
+{% extends "index.html" %}
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">编辑问卷题目</h3>
+        </div>
+        <div class="panel-body">
+            <div class="pull-right">
+                <a href="">
+                    <button class="btn btn-success">保存</button>
+                </a>&nbsp;<a href="">&nbsp;<button class="btn btn-primary">添加</button>
+            </a></div>
+            <div class="ss"></div>
+
+            {% for question_obj in question_list %}
+                 <div class="jumbotron">
+        <div class="s">
+                <p class=" s11">问题{{ forloop.counter }}:
+                        <a href="">
+                            <button class="glyphicon glyphicon-remove pull-right"></button>
+                        </a>
+                    </p>
+                   <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputEmail3" class="col-sm-2 control-label">问题</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" id="inputEmail3"
+                                          placeholder="{{ question_obj.name }}"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="content_type" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" id="content_type">
+                                {% if question_obj.tp == 1 %}
+                                    <option value="1" selected>打分(1-10分)</option>
+                                    {% elif question_obj.tp == 2 %}
+                                    <option value="2" selected>单选</option>
+                                    {% elif question_obj.tp == 3 %}
+                                    <option value="3" selected>评价</option>
+                                {% endif %}
+
+                                </select>
+
+                            </div>
+                        </div>
+                    </form>
+ </div>
+             </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+{% endblock %}

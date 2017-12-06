@@ -41,18 +41,18 @@ class Question(models.Model):
     question_type=(
         (1,"打分"),
         (2,"单选"),
-        (1,"评价"),
+        (3,"评价"),
     )
     tp=models.IntegerField(choices=question_type)
-    questionnaire=models.ForeignKey(to="Questionnaire")
+    questionnaire=models.ForeignKey(to="Questionnaire",default=1)
     class Meta:
         verbose_name_plural="问题表"
     def __str__(self):
         return self.name
 class Option(models.Model):
     """单选题"""
-    name=models.CharField(max_length=32)
-    vale=models.IntegerField()
+    name=models.CharField(verbose_name="内容",max_length=32)
+    value=models.IntegerField(verbose_name="分值" ,default=8)
     qs=models.ForeignKey(to="Question")
     class Meta:
         verbose_name_plural="单选题"

@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form action="">
+
+
+    <select name="pro" id="s1">
+        <option value="0">请输入省份</option>
+        <option value="hebei">河北省</option>
+        <option value="henan">河南省</option>
+        <option value="beijing">北京省</option>
+    </select>
+
+
+    <select name="city" id="c1">
+       <option value="0">请输入城市</option>
+
+    </select>
+
+</form>
+
+<script>
+
+
+    var data={"hebei":["保定","石家庄"],"henan":["郑州","开封"],"beijing":["朝阳","昌平"]};
+
+    var select_province=document.getElementById("s1");
+    var select_city=document.getElementById("c1");
+
+    select_province.onchange=function () {
+
+            var province=this.value;
+           var citys=data[province];
+
+            // 清空操作
+           console.log(select_city.options.length);
+            select_city.options.length=1;
+            for(var i=0;i<citys.length;i++){
+                var ele_option=document.createElement("option"); // <option></option>
+                ele_option.innerHTML=citys[i];  // <option>郑州</option>
+                ele_option.value=i+1;  // <option value=1>郑州</option>
+
+                select_city.appendChild(ele_option)
+           }
+
+    }
+</script>
+
+</body>
+</html>
+

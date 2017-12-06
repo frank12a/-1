@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+{% block content %}
+
+    <div class="ss">
+        <p class="s1">
+            <button class="btn btn-success" style="margin-left: 705px">添加</button>&nbsp;&nbsp;&nbsp;<button
+                class="btn btn-primary">保存
+        </button>
+        </p>
+    </div>
+    <ol>
+        {% for foo in form %}
+
+            <div class="jumbotron " >
+             <p class="glyphicon glyphicon-remove" style="margin-left: 700px " ></p>
+                <li>
+                    <div class="{{ foo.obj.id }}">
+
+                        <p>
+                            问题：{{ foo.form.name }}</p>
+                        <p>类型：{{ foo.form.tp }}
+                            <button id="wwww" class="{{ foo.option_class }} add_option">添加选项</button>
+                        </p>
+                        <ul>
+                            {% for v in foo.options %}
+
+                                <li class="{{ v.obj.id }}">  {{ v.form }}&nbsp;&nbsp; <span class="glyphicon glyphicon-remove"></span></li>
+
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </li>
+            </div>
+        {% endfor %}
+    </ol>
+
+
+
+
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            $(".add_option").click(function () {
+               var ul_ele=$(this).parent().next("ul")
+                s = '<li class="">  <label for="id_name">内容:</label><input type="text" name="name" value="" maxlength="32" required="" id="id_name"> <label for="id_value">分值:</label><input type="number" name="value" value="" required="" id="id_value">&nbsp;&nbsp; <span class="glyphicon glyphicon-remove"></span></li>'
+                ul_ele.append(s)
+            })
+
+        })
+    $("ul").on("click",".glyphicon-remove",function () {
+           $(this).parent().remove()
+    })
+        $(".jumbotron").on("click",".glyphicon-remove",function (){
+              $(this).parent().remove()
+
+        })
+    </script>
+
+{% endblock %}

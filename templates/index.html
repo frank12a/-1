@@ -6,7 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title</title>
     <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/index.css">
+{#    <link rel="stylesheet" href="/static/index.css">#}
+    <script src="/static/jquery-3.2.1.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <style>
+        .hide {
+            display: none;
+        }
+
+    </style>
 
 </head>
 <body>
@@ -54,48 +63,53 @@
     </div><!-- /.container-fluid -->
 </nav>
 <div class="container">
-    <h>平台首页</h>
+
     <div clas="row">
 
-     <div class="col-md-8 col-md-offset-3">
-         {% block content %}
-        <table class="table table-bordered ">
+        <div class="col-md-9 col-md-offset-3">
+            {% block content %}
+                <table class="table table-bordered ">
 
-            <tr>
-                <th><input type="checkbox"></th>
-                <th>调查问卷名称</th>
-                <th>问卷调查班级</th>
-                <th>参与人数</th>
-                <th>问卷选项</th>
-                <th>调查地址</th>
-                <th>查看评分</th>
-                <th>操作</th>
-            </tr>
-            {% for  obj in  questionnaire_obj %}
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>{{ obj.name }}</td>
-                    <td>{{ obj.cls }}</td>
-                    {#                     <td>{{ obj.name }}/{{ obj.join_num }}</td>#}
-                    <td>{{ obj.name }}/{{ obj.cls.student_set.all.count }}</td>
-                    <td><a href="/edit/{{ obj.id }}">问卷选项</a></td>
-                    <td><a href="">调查地址</a></td>
-                    <td><a href="">查看评分</a></td>
-                    <td><a href="/del/{{ obj.id }}">
-                        <button class="btn btn-danger">删除</button>
-                    </a></td>
-                </tr>
+                    <tr>
+                        <th><input type="checkbox"></th>
+                        <th>调查问卷名称</th>
+                        <th>问卷调查班级</th>
+                        <th>参与人数</th>
+                        <th>问卷选项</th>
+                        <th>调查地址</th>
+                        <th>查看评分</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for  obj in  questionnaire_obj %}
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>{{ obj.name }}</td>
+                            <td>{{ obj.cls }}</td>
+                            <td>{{ obj.cls.studnt__answer }}/{{ obj.cls.student_set.all.count }}</td>
+                            <td><a href="/edit/{{ obj.id }}">问卷选项</a></td>
+                            <td><a href="">调查地址</a></td>
+                            <td><a href="">查看评分</a></td>
+                            <td><a href="/del/{{ obj.id }}">
+                                <button class="btn btn-danger">删除</button>
+                            </a></td>
+                        </tr>
 
-            {% endfor %}
+                    {% endfor %}
 
 
-        </table>
-     {% endblock %}
+                </table>
+            {% endblock %}
 
-         </div>
+        </div>
 
 
     </div>
+
 </div>
+
+{% block js %}
+
+{% endblock %}
 </body>
+
 </html>

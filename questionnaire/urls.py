@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^index/', views.index),
     url(r'^del/(?P<del_id>\d+)', views.del_item),
-    url(r'^edit/(?P<edit_id>\d+)', views.edit_item),
+    url(r'^save/(?P<save_id>\d+)', views.save_item),
+    url(r'^edit/(\d+)', views.edit_item),
 ]
