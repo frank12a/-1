@@ -3,19 +3,18 @@
 
     <div class="ss">
         <p class="s1">
-            <button class="btn btn-success" style="margin-left: 705px">添加</button>&nbsp;&nbsp;&nbsp;<button
-                class="btn btn-primary">保存
+            <button class="btn btn-success add_question" style="margin-left: 705px">添加</button>&nbsp;&nbsp;&nbsp;<button
+                class="btn btn-primary save_question">保存
         </button>
         </p>
     </div>
     <ol>
         {% for foo in form %}
 
-            <div class="jumbotron " >
-             <p class="glyphicon glyphicon-remove" style="margin-left: 700px " ></p>
+            <div class="jumbotron ">
+                <p class="glyphicon glyphicon-remove" style="margin-left: 700px "></p>
                 <li>
                     <div class="{{ foo.obj.id }}">
-
                         <p>
                             问题：{{ foo.form.name }}</p>
                         <p>类型：{{ foo.form.tp }}
@@ -23,15 +22,16 @@
                         </p>
                         <ul>
                             {% for v in foo.options %}
-
-                                <li class="{{ v.obj.id }}">  {{ v.form }}&nbsp;&nbsp; <span class="glyphicon glyphicon-remove"></span></li>
-
+                                <li class="{{ v.obj.id }}">  {{ v.form }}&nbsp;&nbsp;
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>
 
                 </li>
             </div>
+            <div class="hide questionnaire_id" id="{{ foo.obj.questionnaire.id }}" ></div>
         {% endfor %}
     </ol>
 
@@ -43,21 +43,91 @@
 
 {% block js %}
     <script>
+        //添加问题
         $(function () {
-            $(".add_option").click(function () {
-               var ul_ele=$(this).parent().next("ul")
+            $(".container").on("click", ".add_question", function () {
+                var question_ele = $("ol .jumbotron").first().clone()
+                console.log($("ol").append(question_ele))
+            })
+        })
+        //添加问题的选项
+        $(function () {
+            $(".container").on("click", ".add_option", function () {
+                var ul_ele = $(this).parent().next("ul")
                 s = '<li class="">  <label for="id_name">内容:</label><input type="text" name="name" value="" maxlength="32" required="" id="id_name"> <label for="id_value">分值:</label><input type="number" name="value" value="" required="" id="id_value">&nbsp;&nbsp; <span class="glyphicon glyphicon-remove"></span></li>'
                 ul_ele.append(s)
             })
 
         })
-    $("ul").on("click",".glyphicon-remove",function () {
-           $(this).parent().remove()
-    })
-        $(".jumbotron").on("click",".glyphicon-remove",function (){
-              $(this).parent().remove()
+        //删除问题或者选项
+        $(".container").on("click", ".glyphicon-remove", function () {
+            $(this).parent().remove()
+        })
+        {#        $(".container").on("click",".glyphicon-remove",function (){#}
+        {#              $(this).parent().remove()#}
+        {##}
+        {#        })#}
+        //onchange问题
+
+        $(".container").on("change", "#id_tp", function () {
+            var ele_a = (this.value)
+            console.log(this)
+            if (ele_a == '2') {
+                console.log($(this).next().removeClass("hide"))
+            }
+            else {
+                $(this).next().addClass("hide")
+                $(this).parent().next().empty()
+
+            }
 
         })
+        $(".container").on("click",".save_question",function(){
+            pList=[]
+            $("ol .jumbotron>li").each(function(i,v){
+                var ele_content=$(v).find("textarea").val()
+                console.log(ele_content)
+                var ele_type=$(v).find("select").val()
+                var ele_class=$(v).find("div").attr("class")
+                console.log(ele_class)
+                if(ele_type=="2"){
+                   s= $(v).find("ul").children("li")
+                    options_list=[]
+                    s.each(function(i,v){
+                        console.log($(v).attr("class"))
+                        var options_id=$(v).attr("class")
+                        var title=$(v).children("input").first().val()
+                        var val=$(v).children("input").last().val()
+                        console.log(title,val)
+                        options_list.push({"id":options_id,"title":title,"val":val})
+
+                    })
+
+                    pList.push({"pid":ele_class,"title":ele_content,"type":ele_type,"options":options_list})
+
+                }
+                else{
+                    pList.push({"pid":ele_class,"title":ele_content,"type":ele_type})
+                }
+            })
+
+            $.ajax({
+{#                url:'/save/'+questionnaire_id+'/',<!--字符串拼接或者前端传值-->#}
+                url:'/save2/{{ nid }}/',<!--字符串拼接或者前端传值-->
+                type:"post",
+                headers:{'Content-Type':'application/json'},
+                headers: {"X-CSRFToken": $.cookie('csrftoken')},
+                data:JSON.stringify(pList),
+                success:function(arg){
+                var data=JSON.parse(arg)
+                    console.log(data)
+{#                    if (data==True)#}
+                }
+            })
+        })
+
+
+
     </script>
 
 {% endblock %}

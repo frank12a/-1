@@ -9,6 +9,7 @@
 {#    <link rel="stylesheet" href="/static/index.css">#}
     <script src="/static/jquery-3.2.1.js"></script>
     <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+     <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <style>
         .hide {
@@ -85,7 +86,7 @@
                             <td><input type="checkbox"></td>
                             <td>{{ obj.name }}</td>
                             <td>{{ obj.cls }}</td>
-                            <td>{{ obj.cls.studnt__answer }}/{{ obj.cls.student_set.all.count }}</td>
+                            <td>{{ obj.question_set.first.answer_set.count }}/{{ obj.cls.student_set.all.count }}</td>
                             <td><a href="/edit/{{ obj.id }}">问卷选项</a></td>
                             <td><a href="">调查地址</a></td>
                             <td><a href="">查看评分</a></td>

@@ -20,7 +20,11 @@ from question_foruser import  views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^index/', views.index),
+    url(r'^login/', views.login),
     url(r'^del/(?P<del_id>\d+)', views.del_item),
     url(r'^save/(?P<save_id>\d+)', views.save_item),
     url(r'^edit/(\d+)', views.edit_item),
+    url(r'^save/(\d+)', views.save_item),
+    url(r'^save2/(\d+)', views.save2_item),
+    url(r'^answer_question/(\d+)/(\d+)/$', views.answer_question),
 ]
