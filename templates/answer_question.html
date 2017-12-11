@@ -16,7 +16,17 @@
     </style>
 </head>
 <body>
-{{ form }}
+<form action="" method="post" novalidate>
+    {% csrf_token %}
+
+     {% for foo in form %}
+         <p>{{ foo.label }}{{ foo.errors.0 }}</p>
+         {{ foo }}
+
+     {% endfor %}
+
+  <p><input type="submit" value="提交"></p>
+</form>
 
 </body>
 </html>

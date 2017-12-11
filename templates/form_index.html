@@ -45,9 +45,12 @@
     <script>
         //添加问题
         $(function () {
-            $(".container").on("click", ".add_question", function () {
+            $(".container").on("click", ".add_question", function ()
+            {
                 var question_ele = $("ol .jumbotron").first().clone()
-                console.log($("ol").append(question_ele))
+                question_ele.find("li").children("div").attr("class","None")
+          $("ol").append(question_ele)
+
             })
         })
         //添加问题的选项
@@ -70,8 +73,11 @@
         //onchange问题
 
         $(".container").on("change", "#id_tp", function () {
-            var ele_a = (this.value)
+            var ele_a = $(this).val()//jq
+{#            var ele_a = this.value#}//js
             console.log(this)
+
+
             if (ele_a == '2') {
                 console.log($(this).next().removeClass("hide"))
             }
@@ -82,14 +88,14 @@
             }
 
         })
-        $(".container").on("click",".save_question",function(){
+
+//获取前端数据传值，用ajax
+$(".container").on("click",".save_question",function(){
             pList=[]
             $("ol .jumbotron>li").each(function(i,v){
-                var ele_content=$(v).find("textarea").val()
-                console.log(ele_content)
+                var ele_content=$(v).find("textarea").val()  //dom对象与jq对象的转换
                 var ele_type=$(v).find("select").val()
                 var ele_class=$(v).find("div").attr("class")
-                console.log(ele_class)
                 if(ele_type=="2"){
                    s= $(v).find("ul").children("li")
                     options_list=[]
@@ -116,17 +122,20 @@
                 url:'/save2/{{ nid }}/',<!--字符串拼接或者前端传值-->
                 type:"post",
                 headers:{'Content-Type':'application/json'},
-                headers: {"X-CSRFToken": $.cookie('csrftoken')},
-                data:JSON.stringify(pList),
+                headers: {"X-CSRFToken": $.cookie('csrftoken')},//避免被forbiden
+                data:JSON.stringify(pList), //先序列化在反序列化
                 success:function(arg){
                 var data=JSON.parse(arg)
                     console.log(data)
-{#                    if (data==True)#}
+                    if(data["status"]==true){
+                    location.href='/index/'
+                    }
+                   else{
+                  alert("请重新添加")
+                    }
                 }
             })
         })
-
-
 
     </script>
 

@@ -1,0 +1,677 @@
+注意，如果使用了模板继承，一定要把jq代码也写在另一个模板中，不然不会生效。字典取值一定用get；jquery取值用.val();js用value   Form的使用对象是大型的项目，ModelForm是小中行项目
+添加问题的代码用jq写的：用的是克隆，一定用事件委派
+ $(function () {
+            $(".container").on("click", ".add_question", function ()
+            {
+                var question_ele = $("ol .jumbotron").first().clone()
+                question_ele.find("li").children("div").attr("class","None")
+          $("ol").append(question_ele)
+
+            })
+        })
+ 添加问题选项是用：字符串拼接
+        $(function () {
+            $(".container").on("click", ".add_option", function () {
+                var ul_ele = $(this).parent().next("ul")
+                s = '<li class="">  <label for="id_name">内容:</label><input type="text" name="name" value="" maxlength="32" required="" id="id_name"> <label for="id_value">分值:</label><input type="number" name="value" value="" required="" id="id_value">&nbsp;&nbsp; <span class="glyphicon glyphicon-remove"></span></li>'
+                ul_ele.append(s)
+            })
+
+        })
+ 删除问题选项是用：
+   $(".container").on("click", ".glyphicon-remove", function () {
+            $(this).parent().remove()
+        })
+
+ 菜单联动类似：(onchange事件)
+     $(".container").on("change", "#id_tp", function () {
+            var ele_a = $(this).val()//jq
+{#            var ele_a = this.value#}//js
+            console.log(this)
+            if (ele_a == '2') {
+                console.log($(this).next().removeClass("hide"))
+            }
+            else {
+                $(this).next().addClass("hide")
+                $(this).parent().next().empty()
+
+            }
+
+        })
+
+
+ 向前端传值：用ajax如果取到的多个类似的项目，就用each方法循环每次取值，jq中往列表中添加数据用push，一定要多用列表和字典
+ $(".container").on("click",".save_question",function(){
+            pList=[]
+            $("ol .jumbotron>li").each(function(i,v){
+                var ele_content=$(v).find("textarea").val()  //dom对象与jq对象的转换
+                var ele_type=$(v).find("select").val()
+                var ele_class=$(v).find("div").attr("class")
+                if(ele_type=="2"){
+                   s= $(v).find("ul").children("li")
+                    options_list=[]
+                    s.each(function(i,v){
+                        console.log($(v).attr("class"))
+                        var options_id=$(v).attr("class")
+                        var title=$(v).children("input").first().val()
+                        var val=$(v).children("input").last().val()
+                        console.log(title,val)
+                        options_list.push({"id":options_id,"title":title,"val":val})
+
+                    })
+
+                    pList.push({"pid":ele_class,"title":ele_content,"type":ele_type,"options":options_list})
+
+                }
+                else{
+                    pList.push({"pid":ele_class,"title":ele_content,"type":ele_type})
+                }
+            })
+
+            $.ajax({
+{#                url:'/save/'+questionnaire_id+'/',<!--字符串拼接或者前端传值-->#}
+                url:'/save2/{{ nid }}/',<!--字符串拼接或者前端传值-->
+                type:"post",
+                headers:{'Content-Type':'application/json'},
+                headers: {"X-CSRFToken": $.cookie('csrftoken')},//避免被forbiden
+                data:JSON.stringify(pList), //先序列化在反序列化
+                success:function(arg){
+                var data=JSON.parse(arg)
+                    console.log(data)
+                    if(data["status"]==true){
+                    location.href='/index/'
+                    }
+                   else{
+                  alert("请重新添加")
+                    }
+                }
+            })
+        })
+//前端保存数据(问题)； 这个要注意前端传来的是字符串我们去数据库取到的是int类型
+判断是不是本班学生，用查询对象或者查询个数都可以   学生id是通过session来设置的
+这个大致的思路是：我们从数据库里取到这个问卷的所有问题，通过问题id（int类型）与前端传过来的id（str字符串类型）进行比较来确定哪些问题需要保留或者删除
+第一步：
+我们首先取出所有问题的id和前端传过来的id用列表解析式来生成(列表解析式)
+第二步：
+我们用集合来删除后端有的id前端没有的id  这个新学到的知识  用set来做
+第三步：（前端有的id，后端没有的我们要加上；前后端都有的我们要更新；前端没有的，后端有的我们要删除）我们把第三步放在try......except中
+我们取到从前端传来的数据，我们用循环来取前端传来的数据。取每个问题的id，title，type，options。
+  我们用id是否在后端的列表里进行循环；
+  如果不在就要添加，接着判断options是否存在如果存在就要先删除这个问题的所有问题选项接着在添加前端传来的问题选项；如果不存在就要删除这个问题的问题选项
+  如果在我们要更新这个问题，接着我们判断options，如果存在就先删除：这个问题的所有的问题选项，接着再添加前端传来的问题选项；如果，options不存在，就删除这个问题的所有问题选项
+
+
+ 第四步：
+ 我们要删除全段没有后端有的id问题。
+ 第五步：我们要在第三步之前设置一个状态字典，通过try  。。。。。 except 来捕捉师傅出现错误，如果出现错误就改变状态。
+ 第六步：我们向前端传数据(json格式)
+ def save2_item(request, qid):  # 保存问题
+    ajax_question_list = json.loads(request.body.decode("utf-8"))
+    '''
+   ajax_question_list= [
+       {
+       'pid': '28',
+        'title': '对我们的评价',
+        'type': '3'
+        },
+         {
+         'pid': '29',
+         'title':'老师长的帅不帅',
+          'type': '1'
+          },
+             {
+             'pid': '30',
+              'title': '老师怎么样',
+               'type': '2',
+                'options': [
+                {'id': '', 'title': '很帅', 'val': '10'},
+                {'id': '', 'title': '帅', 'val': '9'},
+                 {'id': '', 'title': '一般', 'val': '8'}
+                 ]
+                 }
+         ]
+    '''
+    print(ajax_question_list, '前端传来的数据')
+    ret = {"status": True, "error": None, "data": None}
+    try:
+        ajax_question_id = [(item.get("pid")) for item in ajax_question_list if item.get("pid")]
+        question_list = models.Question.objects.filter(questionnaire_id=qid)
+        question_id_list = [str(item.id) for item in question_list]
+        print(question_id_list, "数据库的问题id")
+        print(ajax_question_id, "前端传来的id")
+        question_del_id = set(question_id_list).difference(ajax_question_id)  # 删除在数据库里但是没有在前端的id
+        for item in ajax_question_list:
+            pid = item.get("pid")
+            title = item.get("title")
+            type = item.get("type")
+            op = item.get("options")
+            print(op,"选项")
+
+            if pid not in question_id_list:
+                print(6666)
+                new_question_obj = models.Question.objects.create(name=title, tp=int(type),
+                                                                  questionnaire_id=qid)  # 如果在前端没有在后端就添加
+                if not op:
+                    models.Option.objects.filter(qs_id=int(pid)).delete()
+                else:
+                    # 不推荐使用
+                    models.Option.objects.filter(qs_id=int(pid)).delete()
+                    for item in op:
+                        print(item,"op里面的内容")
+                        models.Option.objects.create(name=item.get("title"), value=int(item.get("val")),
+                                                     qs=new_question_obj)
+                        print("执行啦")
+            else:
+                models.Question.objects.filter(id=int(pid)).update(name=title, tp=type)# 如果前后端都有那就更新
+                new_question_obj =models.Question.objects.filter(id=int(pid)).first()
+                print("更新的内容")
+                if not op:
+                    models.Option.objects.filter(qs_id=int(pid)).delete()
+                else:
+                    # 不推荐使用
+                    models.Option.objects.filter(qs_id=int(pid)).delete()
+                    for item in op:
+                        print(item, "op里面的内容")
+                        models.Option.objects.create(name=item.get("title"), value=int(item.get("val")),
+                                                     qs=new_question_obj)
+                        print("执行啦")
+            # 删除所有没在里面的id
+            models.Question.objects.filter(id__in=question_del_id).delete()  # 删除这个数据
+    except Exception as e:
+        ret["status"]=False
+        ret["error"]=str(e)
+    return HttpResponse(json.dumps(ret))
+
+
+ //学生问题的页面显示与保存   我们用到自定义的Form来渲染前端的页面，
+ 首先，我们判断下这个学生是否在这个班里
+ 第二步，我们要判断下这个学生是否已经做过这个问题
+  stu_id = request.session["stu_info"].get("id")
+    # 判断是不是这个班的学生
+    ret=models.Student.objects.filter(id=stu_id,cls_id=cls_id)
+    # ret=models.Student.objects.filter(id=stu_id,cls_id=cls_id).count()
+    if not ret:
+        return HttpResponse("你不是这个班的学生")
+    ret1 = models.Answer.objects.filter(stu_id_id=stu_id, question_id__questionnaire_id=qn_id).count()
+    if ret1:
+        return HttpResponse("对不起您已经做个了")
+  //我们自定义Form用两种方式
+   # # 类：方式一
+    # class TestForm(Form):
+    #     tp1 = fields.ChoiceField(label='路宁傻不傻？',choices=[ (i,i) for i in range(1,11)],widget=widgets.RadioSelect)
+    #     tp2 = fields.ChoiceField(label='路宁傻不傻？',choices=[ (i,i) for i in range(1,11)],widget=widgets.RadioSelect)
+    #     tp3 = fields.CharField(label='对路宁的建议？',widget=widgets.Textarea)
+    #     tp4 = fields.ChoiceField(label='路宁帽子颜色？',choices=[ (i,i) for i in range(1,11)],widget=widgets.RadioSelect)
+    #
+    # # 类：方式二
+    # MyTestForm = type("MyTestForm",(Form,),{
+    #     'tp1': fields.ChoiceField(label='路宁傻不傻？',choices=[ (i,i) for i in range(1,11)],widget=widgets.RadioSelect),
+    #     'tp2': fields.ChoiceField(label='路宁傻不傻？',choices=[ (i,i) for i in range(1,11)],widget=widgets.RadioSelect),
+    #     'tp3': fields.CharField(label='对路宁的建议？',widget=widgets.Textarea),
+    #     'tp4': fields.ChoiceField(label='路宁帽子颜色？',choices=[ (i,i) for i in range(1,11)],widget=widgets.RadioSelect),
+    # })
+    # return render(request,'score.html',{'question_list':question_list,'form':MyTestForm()})
+    //我们使用第二种情况来创建FORM
+    question_list1 = models.Question.objects.filter(questionnaire_id=qn_id)
+    print(question_list1, "获取问题")
+    field_dict = {}
+    from django.core.exceptions import ValidationError
+    def func(que):
+        if len(que) < 15:
+            raise ValidationError("你的太短")
+    for question1 in question_list1:
+        if question1.tp == 1:
+            field_dict["val_%s" % question1.id] = fields.ChoiceField(
+                required=True,
+                error_messages={"required": "必填"},
+                label=question1.name,
+                choices=[(i, i) for i in range(1, 11)],
+                widget=wb.RadioSelect,
+            )
+        elif question1.tp == 2:
+            field_dict["option_id_%s" % question1.id] = fields.ChoiceField(
+                label=question1.name,
+                error_messages={"required": "必填"},
+                choices=models.Option.objects.filter(qs=question1).values_list("id", "name"),
+
+                widget=wb.RadioSelect,
+            )
+        else:
+            field_dict["content_%s" % question1.id] = fields.CharField(
+                label=question1.name,
+                widget=wb.Textarea,
+                validators=[func, ]#自定义的form验证类型
+            )
+    AnswerForm = type('AnswerForm', (Form,), field_dict)
+
+ 学生回答问题页面是用get还是post类型
+
+ 如果是get：
+  if request.method == "GET":
+        form = AnswerForm()
+        return render(request, "answer_question.html", {"form": form})
+ 如果是post我们处理数据
+     elif request.method == "POST":
+        form = AnswerForm(data=request.POST)#(通过request.POST来取数据)
+        if form.is_valid():
+            dict1 = {}
+            print(form.cleaned_data, "clean_data")
+            for k, v in form.cleaned_data.items():#取form.cleaned_data的数据用.items()
+                k, qid = k.rsplit("_", 1)
+                print(k, qid, "qid")
+                answer_dict = {"stu_id_id": stu_id, "question_id_id": qid, k: v}  #数据的拼接
+                models.Answer.objects.create(**answer_dict)#用键值对的形式
+            return HttpResponse("感谢参与")
+
+        else:
+            return render(request, "answer_question.html", {"form": form})
+//现在我们来看前端学生回答问题页面的显示：
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <style>
+        ul {
+       list-style-type: none;
+
+        }
+        ul li {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<form action="" method="post" novalidate>
+    {% csrf_token %}
+
+     {% for foo in form %}
+         <p>{{ foo.label }}{{ foo.errors.0 }}</p>
+         {{ foo }}
+
+     {% endfor %}
+
+  <p><input type="submit" value="提交"></p>
+</form>
+
+</body>
+</html>
+//现在我们来看添加与编辑问题页面：用了模板继承，页面的script也要放在一个block里面
+{% extends "index.html" %}
+{% block content %}
+
+    <div class="ss">
+        <p class="s1">
+            <button class="btn btn-success add_question" style="margin-left: 705px">添加</button>&nbsp;&nbsp;&nbsp;<button
+                class="btn btn-primary save_question">保存
+        </button>
+        </p>
+    </div>
+    <ol>
+        {% for foo in form %}
+
+            <div class="jumbotron ">
+                <p class="glyphicon glyphicon-remove" style="margin-left: 700px "></p>
+                <li>
+                    <div class="{{ foo.obj.id }}">
+                        <p>
+                            问题：{{ foo.form.name }}</p>
+                        <p>类型：{{ foo.form.tp }}
+                            <button id="wwww" class="{{ foo.option_class }} add_option">添加选项</button>
+                        </p>
+                        <ul>
+                            {% for v in foo.options %}
+                                <li class="{{ v.obj.id }}">  {{ v.form }}&nbsp;&nbsp;
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </li>
+            </div>
+            <div class="hide questionnaire_id" id="{{ foo.obj.questionnaire.id }}" ></div>
+        {% endfor %}
+    </ol>
+
+{% endblock %}
+//页面的jq代码
+{% block js %}
+    <script>
+        //添加问题，我们用了clone
+        $(function () {
+            $(".container").on("click", ".add_question", function ()
+            {
+                var question_ele = $("ol .jumbotron").first().clone()
+                question_ele.find("li").children("div").attr("class","None")
+          $("ol").append(question_ele)
+
+            })
+        })
+        //添加问题的选项，我们用了字符串拼接
+        $(function () {
+            $(".container").on("click", ".add_option", function () {
+                var ul_ele = $(this).parent().next("ul")
+                s = '<li class="">  <label for="id_name">内容:</label><input type="text" name="name" value="" maxlength="32" required="" id="id_name"> <label for="id_value">分值:</label><input type="number" name="value" value="" required="" id="id_value">&nbsp;&nbsp; <span class="glyphicon glyphicon-remove"></span></li>'
+                ul_ele.append(s)
+            })
+
+        })
+        //删除问题或者选项
+        $(".container").on("click", ".glyphicon-remove", function () {
+            $(this).parent().remove()
+        })
+        {#        $(".container").on("click",".glyphicon-remove",function (){#}
+        {#              $(this).parent().remove()#}
+        {##}
+        {#        })#}
+        //onchange事件
+
+        $(".container").on("change", "#id_tp", function () {
+            var ele_a = $(this).val()//jq
+{#            var ele_a = this.value#}//js
+            console.log(this)
+            if (ele_a == '2') {
+                console.log($(this).next().removeClass("hide"))
+            }
+            else {
+                $(this).next().addClass("hide")
+                $(this).parent().next().empty()
+            }
+        })
+
+//获取前端数据传值，用ajax
+$(".container").on("click",".save_question",function(){
+            pList=[]
+            $("ol .jumbotron>li").each(function(i,v){
+                var ele_content=$(v).find("textarea").val()  //dom对象与jq对象的转换
+                var ele_type=$(v).find("select").val()
+                var ele_class=$(v).find("div").attr("class")
+                if(ele_type=="2"){
+                   s= $(v).find("ul").children("li")
+                    options_list=[]
+                    s.each(function(i,v){
+                        console.log($(v).attr("class"))
+                        var options_id=$(v).attr("class")
+                        var title=$(v).children("input").first().val()
+                        var val=$(v).children("input").last().val()
+                        console.log(title,val)
+                        options_list.push({"id":options_id,"title":title,"val":val})
+
+                    })
+
+                    pList.push({"pid":ele_class,"title":ele_content,"type":ele_type,"options":options_list})
+
+                }
+                else{
+                    pList.push({"pid":ele_class,"title":ele_content,"type":ele_type})
+                }
+            })
+
+            $.ajax({
+{#                url:'/save/'+questionnaire_id+'/',<!--字符串拼接或者前端传值-->#}
+                url:'/save2/{{ nid }}/',<!--字符串拼接或者前端传值-->
+                type:"post",
+                headers:{'Content-Type':'application/json'},
+                headers: {"X-CSRFToken": $.cookie('csrftoken')},//避免被forbidden
+                data:JSON.stringify(pList), //先序列化在反序列化
+                success:function(arg){
+                var data=JSON.parse(arg)
+                    console.log(data)
+                    if(data["status"]==true){
+                    location.href='/index/'
+                    }
+                   else{
+                  alert("请重新添加")
+                    }
+                }
+            })
+        })
+
+    </script>
+
+{% endblock %}
+
+
+//我们要写一个登陆函数，用来学生登陆，赋值session 后端的函数
+def login(request):
+    stu_obj = models.Student.objects.filter(name="杨磊").first()
+    request.session["stu_info"] = {"id": stu_obj.id, "user": stu_obj.name}
+    return HttpResponse("登陆成功")
+
+
+
+//用来显示问卷的页面，后端的函数
+def index(request):
+    questionnaire_list = models.Questionnaire.objects.all().annotate(x=Count("cls__student"))
+    join_num = []
+    for questionnaire in questionnaire_list:
+        # print(questionnaire.question_set.all())
+        part_num = models.Answer.objects.filter(question_id__in=questionnaire.question_set.all()).values_list("stu_id")
+        print(part_num, "********")
+        join_num.append((questionnaire.id, questionnaire.cls.student_set.count()))
+    print(questionnaire_list)
+    return render(request, "index.html", {"questionnaire_obj": questionnaire_list})
+
+
+//显示页面的代码
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.css">
+{#    <link rel="stylesheet" href="/static/index.css">#}
+    <script src="/static/jquery-3.2.1.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+{#     <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>#}
+    <script  src="/static/jquery.cookie.js"></script>
+    <style>
+        .hide {
+            display: none;
+        }
+
+    </style>
+
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">CRM系统</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">CRM系统</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+                <li><a href="#">Link</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="container">
+
+    <div clas="row">
+
+        <div class="col-md-9 col-md-offset-3">
+            {% block content %}
+                <table class="table table-bordered ">
+
+                    <tr>
+                        <th><input type="checkbox"></th>
+                        <th>调查问卷名称</th>
+                        <th>问卷调查班级</th>
+                        <th>参与人数</th>
+                        <th>问卷选项</th>
+                        <th>调查地址</th>
+                        <th>查看评分</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for  obj in  questionnaire_obj %}
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>{{ obj.name }}</td>
+                            <td>{{ obj.cls }}</td>
+                            <td>{{ obj.question_set.first.answer_set.count }}/{{ obj.cls.student_set.all.count }}</td>
+                            <td><a href="/edit/{{ obj.id }}">问卷选项</a></td>
+                            <td><a href="">调查地址</a></td>
+                            <td><a href="">查看评分</a></td>
+                            <td><a href="/del/{{ obj.id }}">
+                                <button class="btn btn-danger">删除</button>
+                            </a></td>
+                        </tr>
+
+                    {% endfor %}
+
+
+                </table>
+            {% endblock %}
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% block js %}
+
+{% endblock %}
+</body>
+
+</html>
+
+
+//删除问卷的代码
+def del_item(request, del_id):
+    del_id = int(del_id)
+    print(type(del_id))
+    models.Questionnaire.objects.filter(id=del_id).delete()
+    return redirect("/index/")
+//显示问题的页面的视图：
+class QuestionForm(ModelForm):
+    class Meta:
+        model = models.Question
+        fields = '__all__'
+        widgets = {  # 格式
+            'name': wb.Textarea(attrs={"cols": 50, "rows": 2})
+        }
+
+
+class OptionFrom(ModelForm):
+    class Meta:
+        model = models.Option
+        fields = ["name", "value"]
+def edit_item(request, nid):
+    # print(nid)
+    # question_list=models.Question.objects.filter(questionnaire_id=nid)
+    # print(question_list)
+    # 方法一
+    # form_list = []
+    # if not question_list:
+    #     form=QuestionForm()#如果不放在列表里不能循环因为他虽然是个空的也是有值的
+    #     form_list.append(form)
+    #     return render(request,"form_index.html",{"form":form_list})
+    # else:
+    #     for que in question_list:
+    #         form=QuestionForm(instance=que)
+    #         form_list.append(form)
+    #     return render(request, "form_index.html", {"form": form_list})
+    # 方法二
+    # def inner():
+    #     question_list = models.Question.objects.filter(questionnaire_id=nid)
+    #     if not question_list:
+    #         form=QuestionForm()
+    #         yield {"form":form,'obj':None,"option_class":"hide","options":None}
+    #     else:
+    #         for que in question_list:
+    #             form=QuestionForm(instance=que)
+    #             temp={"form":form,"obj":que,"option_class":"hide","options":None}
+    #             if que.tp ==2:
+    #                 temp["option_class"]=''
+    #                 option_model_list=[]
+    #                 option_list=models.Option.objects.filter(qs=que)
+    #                 for v in option_list:
+    #                     vm=OptionFrom(instance=v)
+    #                     option_model_list.append(vm)
+    #                 temp["options"]=option_model_list
+    #
+    #                 print(temp["options"])
+    #             yield  temp
+    #
+    #
+    # return render(request, "form_index.html", {"form": inner()})
+    # 方法三
+    def inner():
+        question_list = models.Question.objects.filter(questionnaire_id=nid)
+        if not question_list:
+            form = QuestionForm()
+            yield {"form": form, 'obj': None, "option_class": "hide", "options": None}
+        else:
+            for que in question_list:
+                print(que, "所有的问题")
+                form = QuestionForm(instance=que)
+                temp = {"form": form, "obj": que, "option_class": "hide", "options": None}
+                if que.tp == 2:
+                    print(que.tp)
+                    temp["option_class"] = ''
+
+                    def inner_loop(quee):
+                        option_list = models.Option.objects.filter(qs=quee)
+                        print(option_list, "问题选项")
+                        for v in option_list:
+                            print(v, "********")
+                            yield {"form": OptionFrom(instance=v), "obj": v}
+
+                    temp["options"] = inner_loop(que)
+                    # print(inner_loop(que))
+                yield temp
+
+    return render(request, "form_index.html", {"form": inner(), "nid": nid})
+
+
+
+
+
+
+
+
+
+
+
+
+
+

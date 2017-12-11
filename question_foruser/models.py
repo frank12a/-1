@@ -62,7 +62,7 @@ class Answer(models.Model):
     """答案"""
     stu_id=models.ForeignKey(to="Student")
     question_id=models.ForeignKey(to="Question",verbose_name='关联的第几题')
-    option=models.ForeignKey(to="Option")
+    option=models.ForeignKey(to="Option",null=True,blank=True)
     val=models.IntegerField(null=True,blank=True)
     content = models.CharField(max_length=255,null=True,blank=True)
     def __str__(self):
